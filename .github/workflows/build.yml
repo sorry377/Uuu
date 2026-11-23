@@ -1,48 +1,20 @@
-name: Build NEXRA Executor APK
+name: Build APK
 
 on:
-  workflow_dispatch:   # กดรันมือได้
-  push:
-    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Grant execute permission for gradlew
-        run: |
-          if [ -f gradlew ]; then
-            chmod +x gradlew
-          else
-            echo "No gradlew found, will use gradle wrapper generation"
-          fi
-
-      - name: Generate Gradle Wrapper (if missing)
-        run: |
-          if [ ! -f gradlew ]; then
-            gradle wrapper --gradle-version 8.7
-            chmod +x gradlew
-          fi
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: android-actions/setup-android@v3
+      - run: chmod +x gradlew && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
         with:
-          name: NEXRA-Executor-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 14
+          name: NEXRA-Executor
+          path: app/build/outputs/apk/debug/*.apk
